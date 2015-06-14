@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+
+import zipfile
+import xml.etree.ElementTree as ET
+import sys
+import binascii
+
+folder = '.'
+datafile = 'datafile.dat'
+
+try:
+    tree = ET.parse(datafile)
+except FileNotFoundError as e:
+    print(e.strerror)
+    sys.exit(1)
+
+root = tree.getroot()
+
+missing = list()
+good = list()
+bad = list()
+
+def CRC32_from_file(filename):
+    buf = filename.read()
+    buf = (binascii.crc32(buf) & 0xFFFFFFFF)
+    return "%08X" % buf
+
+for game in root.findall('game'):
+    try:
+        isbad = False
+        myfiles = zipfile.ZipFile(folder + '/' + game.attrib['name'] + '.zip', 'r')
+        for myfile in myfiles.namelist():
+            crc32 = CRC32_from_file(myfiles.open(myfile))
+            if crc32.lower() != game.findall("rom[@name='" + myfile + "']")[0].get('crc'):
+                isbad = True
+                break
+        if isbad:
+            bad.append(game.attrib['name'])
+        else:
+            good.append(game.attrib['name'])
+    except:
+        missing.append(game.attrib['name'])
+
+print('Missing: %d' % len(missing))
+print('Ok: %d' % len(good))
+print('Fail: %d' % len(bad))
