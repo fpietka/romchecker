@@ -20,6 +20,7 @@ missing = list()
 good = list()
 bad = list()
 
+
 def CRC32_from_file(filename):
     buf = filename.read()
     buf = (binascii.crc32(buf) & 0xFFFFFFFF)
