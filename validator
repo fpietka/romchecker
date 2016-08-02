@@ -40,8 +40,10 @@ for game in root.findall('game'):
             bad.append(game.attrib['name'])
         else:
             good.append(game.attrib['name'])
-    except:
+    except FileNotFoundError:
         missing.append(game.attrib['name'])
+    except zipfile.BadZipFile:
+        bad.append(game.attrib['name'])
 
 print('Missing: %d' % len(missing))
 print('Ok: %d' % len(good))
