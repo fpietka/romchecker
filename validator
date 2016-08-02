@@ -31,9 +31,9 @@ for game in root.findall('game'):
         name = '{}/{}.zip'.format(folder, game.attrib['name'])
         myfiles = zipfile.ZipFile(name, 'r')
         for myfile in myfiles.namelist():
-            crc32 = CRC32_from_file(myfiles.open(myfile))
+            crc32 = CRC32_from_file(myfiles.open(myfile)).lower()
             gamenode = game.findall("rom[@name='{}']".format(myfile))[0]
-            if crc32.lower() != gamenode.get('crc'):
+            if crc32 != gamenode.get('crc'):
                 isbad = True
                 break
         if isbad:
